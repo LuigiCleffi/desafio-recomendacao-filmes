@@ -1,0 +1,36 @@
+{
+  "name": "movie-recommendation-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --import=tsx/esm --env-file=.env --watch src/main/index.ts",
+    "build": "tsc",
+    "start": "node dist/main/index.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/sensible": "^6.0.4",
+    "@fastify/type-provider-typebox": "^4.1.0",
+    "@sinclair/typebox": "^0.34.49",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "close-with-grace": "^2.5.0",
+    "drizzle-orm": "^0.44.7",
+    "fastify": "^5.8.5",
+    "fastify-plugin": "^5.1.0",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
+  }
+}
