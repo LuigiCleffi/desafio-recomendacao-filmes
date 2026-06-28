@@ -10,7 +10,8 @@
     "start": "node dist/main/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node --import=tsx/esm --env-file=.env src/scripts/seed.ts"
   },
   "keywords": [],
   "author": "",
