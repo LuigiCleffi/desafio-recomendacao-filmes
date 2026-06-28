@@ -19,14 +19,14 @@
   "description": "",
   "dependencies": {
     "@fastify/sensible": "^6.0.4",
-    "@fastify/type-provider-typebox": "^4.1.0",
-    "@sinclair/typebox": "^0.34.49",
+    "@fastify/type-provider-zod": "^1.0.0",
     "@tensorflow/tfjs-node": "^4.22.0",
     "close-with-grace": "^2.5.0",
     "drizzle-orm": "^0.44.7",
     "fastify": "^5.8.5",
     "fastify-plugin": "^5.1.0",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",

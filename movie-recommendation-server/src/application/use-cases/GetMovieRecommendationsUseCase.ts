@@ -14,8 +14,8 @@ export class GetMovieRecommendationsUseCase {
       return this.movieRepository.findSimilar(movie.embedding, MAX_RECOMMENDATIONS, movieId)
     }
 
-    if (movie.genre) {
-      const sameGenre = await this.movieRepository.findByGenre(movie.genre)
+    if (movie.genres.length > 0) {
+      const sameGenre = await this.movieRepository.findByGenre(movie.genres[0]!)
       const others = sameGenre.filter((m) => m.id !== movieId)
       if (others.length > 0) return others.slice(0, MAX_RECOMMENDATIONS)
     }

@@ -1,23 +1,42 @@
 import { eq, isNotNull, ne, and, sql } from 'drizzle-orm'
-import type { Movie, CreateMovieInput } from '../../domain/entities/Movie.js'
+import type { Movie, CreateMovieInput, Genre } from '../../domain/entities/Movie.js'
+import { GenreSchema } from '../../domain/entities/Movie.js'
 import type { MovieRepository } from '../../domain/repositories/MovieRepository.js'
 import type { Database } from '../database/drizzle/client.js'
-import { movies } from '../database/drizzle/schema.js'
+import { movies, type MovieRow } from '../database/drizzle/schema.js'
+
+function parseGenres(raw: string | null): Genre[] {
+  if (!raw) return []
+  return raw
+    .split('|')
+    .map((g) => g.trim())
+    .filter((g): g is Genre => GenreSchema.safeParse(g).success)
+}
+
+function toMovie(row: MovieRow): Movie {
+  const { genre, ...rest } = row
+  return { ...rest, genres: parseGenres(genre) }
+}
 
 export class DrizzleMovieRepository implements MovieRepository {
   constructor(private readonly db: Database) {}
 
   async findAll(): Promise<Movie[]> {
-    return this.db.select().from(movies)
+    const rows = await this.db.select().from(movies)
+    return rows.map(toMovie)
   }
 
   async findById(id: string): Promise<Movie | null> {
     const rows = await this.db.select().from(movies).where(eq(movies.id, id))
-    return rows[0] ?? null
+    return rows[0] ? toMovie(rows[0]) : null
   }
 
-  async findByGenre(genre: string): Promise<Movie[]> {
-    return this.db.select().from(movies).where(eq(movies.genre, genre))
+  async findByGenre(genre: Genre): Promise<Movie[]> {
+    const rows = await this.db
+      .select()
+      .from(movies)
+      .where(sql`${genre} = ANY(string_to_array(${movies.genre}, '|'))`)
+    return rows.map(toMovie)
   }
 
   async findSimilar(embedding: number[], limit: number, excludeId?: string): Promise<Movie[]> {
@@ -28,19 +47,26 @@ export class DrizzleMovieRepository implements MovieRepository {
       ? and(isNotNull(movies.embedding), ne(movies.id, excludeId))
       : isNotNull(movies.embedding)
 
-    return this.db
+    const rows = await this.db
       .select()
       .from(movies)
       .where(condition)
       .orderBy(distance)
       .limit(limit)
+    return rows.map(toMovie)
   }
 
   async create(input: CreateMovieInput): Promise<Movie> {
-    const rows = await this.db.insert(movies).values(input).returning()
+    const { genres, ...rest } = input
+    const rows = await this.db
+      .insert(movies)
+      // externalId is intentionally omitted from CreateMovieInput (API-created movies);
+      // the DB constraint will enforce it at runtime if needed
+      .values({ ...rest, genre: genres?.join('|') ?? null } as any)
+      .returning()
     const row = rows[0]
     if (!row) throw new Error('Insert returned no rows')
-    return row
+    return toMovie(row)
   }
 
   async updateEmbedding(id: string, embedding: number[]): Promise<void> {

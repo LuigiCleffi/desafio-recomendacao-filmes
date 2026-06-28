@@ -1,5 +1,5 @@
 import Fastify from 'fastify'
-import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import { serializerCompiler, validatorCompiler } from '@fastify/type-provider-zod'
 import sensible from '@fastify/sensible'
 import type { GetMoviesUseCase } from '../../application/use-cases/GetMoviesUseCase.js'
 import type { GetMovieByIdUseCase } from '../../application/use-cases/GetMovieByIdUseCase.js'
@@ -15,7 +15,10 @@ export interface AppDeps {
 }
 
 export function buildApp(deps: AppDeps) {
-  const app = Fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>()
+  const app = Fastify({ logger: true })
+
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
 
   app.register(sensible)
 
