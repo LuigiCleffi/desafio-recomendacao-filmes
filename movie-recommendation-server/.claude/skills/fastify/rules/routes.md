@@ -428,7 +428,7 @@ app.register(autoload, {
   options: { prefix: '/api' },
 });
 
-await app.listen({ port: 3000 });
+await app.listen({ port: 3001 });
 ```
 
 Directory structure:

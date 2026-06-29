@@ -578,7 +578,7 @@ movieId,title,genres
 667,Bloodsport 2 (a.k.a. Bloodsport II: The Next Kumite) (1996),Action
 668,Song of the Little Road (Pather Panchali) (1955),Drama
 670,"World of Apu, The (Apur Sansar) (1959)",Drama
-671,Mystery Science Theater 3000: The Movie (1996),Comedy|Sci-Fi
+671,Mystery Science Theater 3001: The Movie (1996),Comedy|Sci-Fi
 673,Space Jam (1996),Adventure|Animation|Children|Comedy|Fantasy|Sci-Fi
 674,Barbarella (1968),Adventure|Comedy|Sci-Fi
 678,Some Folks Call It a Sling Blade (1993),Drama|Thriller
@@ -2397,7 +2397,7 @@ movieId,title,genres
 2995,House on Haunted Hill (1999),Horror|Thriller
 2996,Music of the Heart (1999),Drama
 2997,Being John Malkovich (1999),Comedy|Drama|Fantasy
-3000,Princess Mononoke (Mononoke-hime) (1997),Action|Adventure|Animation|Drama|Fantasy
+3001,Princess Mononoke (Mononoke-hime) (1997),Action|Adventure|Animation|Drama|Fantasy
 3003,Train of Life (Train de vie) (1998),Comedy|Drama|Romance|War
 3004,"Bachelor, The (1999)",Comedy|Romance
 3005,"Bone Collector, The (1999)",Thriller
@@ -3273,7 +3273,7 @@ movieId,title,genres
 4155,Sweet November (2001),Drama|Romance
 4157,"Price of Milk, The (2000)",Comedy|Drama|Fantasy|Romance
 4158,Monkeybone (2001),Animation|Comedy|Fantasy
-4159,3000 Miles to Graceland (2001),Action|Thriller
+4159,3001 Miles to Graceland (2001),Action|Thriller
 4160,"Widow of St. Pierre, The (Veuve de Saint-Pierre, La) (2000)",Drama|Romance
 4161,"Mexican, The (2001)",Action|Comedy
 4162,See Spot Run (2001),Comedy
@@ -7376,7 +7376,7 @@ movieId,title,genres
 52967,Away from Her (2006),Drama
 52973,Knocked Up (2007),Comedy|Drama|Romance
 52975,Hairspray (2007),Comedy|Drama|Musical
-53000,28 Weeks Later (2007),Horror|Sci-Fi|Thriller
+53001,28 Weeks Later (2007),Horror|Sci-Fi|Thriller
 53002,Georgia Rule (2007),Comedy|Drama|Romance
 53004,Delta Farce (2007),Action|Adventure|Comedy
 53024,Jonestown: The Life and Death of Peoples Temple (2006),Documentary
@@ -8350,7 +8350,7 @@ movieId,title,genres
 72980,Veronika Decides to Die (2009),Drama|Romance
 72982,Alice (2009),Action|Adventure|Fantasy
 72998,Avatar (2009),Action|Adventure|Sci-Fi|IMAX
-73000,Nine (2009),Drama|Musical|Romance
+73001,Nine (2009),Drama|Musical|Romance
 73015,It's Complicated (2009),Comedy|Romance
 73017,Sherlock Holmes (2009),Action|Crime|Mystery|Thriller
 73023,Crazy Heart (2009),Drama|Romance

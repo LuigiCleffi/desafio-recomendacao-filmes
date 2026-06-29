@@ -17,7 +17,7 @@ import envSchema from 'env-schema';
 import { Type, type Static } from '@sinclair/typebox';
 
 const schema = Type.Object({
-  PORT: Type.Number({ default: 3000 }),
+  PORT: Type.Number({ default: 3001 }),
   HOST: Type.String({ default: '0.0.0.0' }),
   DATABASE_URL: Type.String(),
   JWT_SECRET: Type.String({ minLength: 32 }),
@@ -63,7 +63,7 @@ import envSchema from 'env-schema';
 import { Type, type Static } from '@sinclair/typebox';
 
 const schema = Type.Object({
-  PORT: Type.Number({ default: 3000 }),
+  PORT: Type.Number({ default: 3001 }),
   HOST: Type.String({ default: '0.0.0.0' }),
   DATABASE_URL: Type.String(),
   JWT_SECRET: Type.String({ minLength: 32 }),

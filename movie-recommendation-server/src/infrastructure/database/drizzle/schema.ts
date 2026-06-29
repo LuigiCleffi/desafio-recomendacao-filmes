@@ -24,7 +24,7 @@ export const movies = pgTable('movies', {
   genre: varchar('genre', { length: 255 }),
 
   embedding: vector('embedding', {
-    dimensions: 512
+    dimensions: 22
   }),
 
   createdAt: timestamp('created_at')
@@ -40,8 +40,6 @@ export const movies = pgTable('movies', {
 export type MovieRow = typeof movies.$inferSelect
 export type NewMovieRow = typeof movies.$inferInsert
 
-
-
 export const users = pgTable('users', {
 
   id: uuid('id')
@@ -51,6 +49,9 @@ export const users = pgTable('users', {
   externalId: integer('external_id')
     .notNull()
     .unique(),
+
+  birthYear: integer('birth_year')
+    .notNull(),
 
   createdAt: timestamp('created_at')
     .defaultNow()

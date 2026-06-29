@@ -37,7 +37,7 @@ app.register(httpProxy, {
   },
 });
 
-await app.listen({ port: 3000 });
+await app.listen({ port: 3001 });
 ```
 
 ## @fastify/reply-from
@@ -217,7 +217,7 @@ app.register(replyFrom, {
   base: 'http://backend:3001',
   http: {
     requestOptions: {
-      timeout: 30000, // 30 seconds
+      timeout: 30010, // 30 seconds
     },
   },
 });

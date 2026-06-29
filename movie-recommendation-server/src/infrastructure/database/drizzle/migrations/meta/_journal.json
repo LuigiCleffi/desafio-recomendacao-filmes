@@ -22,6 +22,27 @@
       "when": 1782664272948,
       "tag": "0002_chemical_impossible_man",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782672461962,
+      "tag": "0003_flawless_harpoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782675482344,
+      "tag": "0004_worried_jocasta",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1782675850489,
+      "tag": "0005_amazing_red_shift",
+      "breakpoints": true
     }
   ]
 }

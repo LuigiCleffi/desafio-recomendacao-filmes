@@ -1,10 +1,12 @@
-import { Type, type Static } from '@sinclair/typebox'
+import { z } from 'zod'
 import type { FastifyPluginAsync } from 'fastify'
+import type { ZodTypeProvider } from '@fastify/type-provider-zod'
 import type { GetMoviesUseCase } from '../../../application/use-cases/GetMoviesUseCase.js'
 import type { GetMovieByIdUseCase } from '../../../application/use-cases/GetMovieByIdUseCase.js'
 import type { CreateMovieUseCase } from '../../../application/use-cases/CreateMovieUseCase.js'
 import type { GetMovieRecommendationsUseCase } from '../../../application/use-cases/GetMovieRecommendationsUseCase.js'
 import type { Movie } from '../../../domain/entities/Movie.js'
+import { GenreSchema, CreateMovieInputSchema } from '../../../domain/entities/Movie.js'
 
 interface Deps {
   getMovies: GetMoviesUseCase
@@ -13,27 +15,17 @@ interface Deps {
   getRecommendations: GetMovieRecommendationsUseCase
 }
 
-const MovieSchema = Type.Object({
-  id: Type.String(),
-  title: Type.String(),
-  description: Type.Union([Type.String(), Type.Null()]),
-  releaseYear: Type.Union([Type.Integer(), Type.Null()]),
-  genre: Type.Union([Type.String(), Type.Null()]),
-  createdAt: Type.String(),
-  updatedAt: Type.String(),
+const MovieResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  releaseYear: z.number().int().nullable(),
+  genres: z.array(GenreSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 })
 
-const CreateMovieBody = Type.Object({
-  title: Type.String({ minLength: 1 }),
-  description: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-  releaseYear: Type.Optional(Type.Union([Type.Integer(), Type.Null()])),
-  genre: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-})
-
-const IdParam = Type.Object({ id: Type.String() })
-
-type IdParamType = Static<typeof IdParam>
-type CreateMovieBodyType = Static<typeof CreateMovieBody>
+const IdParamSchema = z.object({ id: z.string() })
 
 function serialize(movie: Movie) {
   const { embedding: _embedding, ...rest } = movie
@@ -46,17 +38,19 @@ function serialize(movie: Movie) {
 
 export function createMovieRoutes(deps: Deps): FastifyPluginAsync {
   return async (fastify) => {
-    fastify.get('/', {
-      schema: { response: { 200: Type.Array(MovieSchema) } },
+    const app = fastify.withTypeProvider<ZodTypeProvider>()
+
+    app.get('/', {
+      schema: { response: { 200: z.array(MovieResponseSchema) } },
     }, async () => {
       const result = await deps.getMovies.execute()
       return result.map(serialize)
     })
 
-    fastify.get<{ Params: IdParamType }>('/:id', {
+    app.get('/:id', {
       schema: {
-        params: IdParam,
-        response: { 200: MovieSchema },
+        params: IdParamSchema,
+        response: { 200: MovieResponseSchema },
       },
     }, async (request, reply) => {
       const movie = await deps.getMovieById.execute(request.params.id)
@@ -64,10 +58,10 @@ export function createMovieRoutes(deps: Deps): FastifyPluginAsync {
       return serialize(movie)
     })
 
-    fastify.post<{ Body: CreateMovieBodyType }>('/', {
+    app.post('/', {
       schema: {
-        body: CreateMovieBody,
-        response: { 201: MovieSchema },
+        body: CreateMovieInputSchema,
+        response: { 201: MovieResponseSchema },
       },
     }, async (request, reply) => {
       const movie = await deps.createMovie.execute(request.body)
@@ -75,10 +69,10 @@ export function createMovieRoutes(deps: Deps): FastifyPluginAsync {
       return serialize(movie)
     })
 
-    fastify.get<{ Params: IdParamType }>('/:id/recommendations', {
+    app.get('/:id/recommendations', {
       schema: {
-        params: IdParam,
-        response: { 200: Type.Array(MovieSchema) },
+        params: IdParamSchema,
+        response: { 200: z.array(MovieResponseSchema) },
       },
     }, async (request) => {
       const result = await deps.getRecommendations.execute(request.params.id)

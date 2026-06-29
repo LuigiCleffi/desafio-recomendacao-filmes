@@ -11,13 +11,16 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "node --import=tsx/esm --env-file=.env src/scripts/seed.ts"
+    "db:seed": "node --import=tsx/esm --env-file=.env src/scripts/seed.ts",
+    "ml:embeddings": "node --import=tsx/esm --env-file=.env src/scripts/generateEmbeddings.ts",
+    "ml:train": "node --import=tsx/esm --env-file=.env src/ml/training/train.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@fastify/sensible": "^6.0.4",
     "@fastify/type-provider-zod": "^1.0.0",
     "@tensorflow/tfjs-node": "^4.22.0",

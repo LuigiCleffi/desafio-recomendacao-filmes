@@ -302,7 +302,7 @@ app.register(fastifyOauth2, {
     },
   },
   startRedirectPath: '/auth/google',
-  callbackUri: 'http://localhost:3000/auth/google/callback',
+  callbackUri: 'http://localhost:3001/auth/google/callback',
   discovery: {
     issuer: 'https://accounts.google.com',
   },

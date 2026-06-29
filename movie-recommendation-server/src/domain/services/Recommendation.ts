@@ -6,6 +6,6 @@ export interface RecommendationModel {
 
     recommend(
         userId: string,
-        limit: string
+        limit: number
     ): Promise<string[]>;
 }

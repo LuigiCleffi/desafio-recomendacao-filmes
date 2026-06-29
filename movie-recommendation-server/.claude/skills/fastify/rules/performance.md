@@ -324,7 +324,7 @@ Configure appropriate timeouts:
 import Fastify from 'fastify';
 
 const app = Fastify({
-  connectionTimeout: 30000, // 30 seconds
+  connectionTimeout: 30010, // 30 seconds
   keepAliveTimeout: 5000,   // 5 seconds
 });
 
@@ -362,10 +362,10 @@ Use autocannon for load testing:
 npm install -g autocannon
 
 # Basic benchmark
-autocannon http://localhost:3000/api/users
+autocannon http://localhost:3001/api/users
 
 # With options
-autocannon -c 100 -d 30 -p 10 http://localhost:3000/api/users
+autocannon -c 100 -d 30 -p 10 http://localhost:3001/api/users
 # -c: connections
 # -d: duration in seconds
 # -p: pipelining factor
@@ -376,7 +376,7 @@ autocannon -c 100 -d 30 -p 10 http://localhost:3000/api/users
 import autocannon from 'autocannon';
 
 const result = await autocannon({
-  url: 'http://localhost:3000/api/users',
+  url: 'http://localhost:3001/api/users',
   connections: 100,
   duration: 30,
   pipelining: 10,

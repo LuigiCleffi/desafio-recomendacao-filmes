@@ -274,7 +274,7 @@ Execute when request times out:
 
 ```typescript
 const app = Fastify({
-  connectionTimeout: 30000, // 30 seconds
+  connectionTimeout: 30010, // 30 seconds
 });
 
 app.addHook('onTimeout', async (request, reply) => {

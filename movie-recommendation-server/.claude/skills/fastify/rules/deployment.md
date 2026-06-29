@@ -34,7 +34,7 @@ closeWithGrace({ delay: 10000 }, async ({ signal, err }) => {
 
 // Start server
 await app.listen({
-  port: parseInt(process.env.PORT || '3000', 10),
+  port: parseInt(process.env.PORT || '3001', 10),
   host: '0.0.0.0',
 });
 
@@ -138,14 +138,14 @@ COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
 USER nodejs
 
-EXPOSE 3000
+EXPOSE 3001
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
 
 CMD ["node", "src/app.ts"]
 ```
@@ -156,7 +156,7 @@ services:
   api:
     build: .
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgres://user:pass@db:5432/app
@@ -208,7 +208,7 @@ spec:
         - name: api
           image: my-registry/fastify-api:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
           env:
             - name: NODE_ENV
               value: "production"
@@ -227,13 +227,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /health/live
-              port: 3000
+              port: 3001
             initialDelaySeconds: 5
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /health/ready
-              port: 3000
+              port: 3001
             initialDelaySeconds: 5
             periodSeconds: 5
           lifecycle:
@@ -250,7 +250,7 @@ spec:
     app: fastify-api
   ports:
     - port: 80
-      targetPort: 3000
+      targetPort: 3001
   type: ClusterIP
 ```
 
@@ -296,9 +296,9 @@ Configure appropriate timeouts:
 
 ```typescript
 const app = Fastify({
-  connectionTimeout: 30000,     // 30s connection timeout
+  connectionTimeout: 30010,     // 30s connection timeout
   keepAliveTimeout: 72000,      // 72s keep-alive (longer than ALB 60s)
-  requestTimeout: 30000,        // 30s request timeout
+  requestTimeout: 30010,        // 30s request timeout
   bodyLimit: 1048576,           // 1MB body limit
 });
 
@@ -410,7 +410,7 @@ Support rolling updates:
 import closeWithGrace from 'close-with-grace';
 
 // Stop accepting new connections gracefully
-closeWithGrace({ delay: 30000 }, async ({ signal }) => {
+closeWithGrace({ delay: 30010 }, async ({ signal }) => {
   app.log.info({ signal }, 'Received shutdown signal');
 
   // Stop accepting new connections

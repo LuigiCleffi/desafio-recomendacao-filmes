@@ -314,7 +314,7 @@ app.register(fastifyPostgres, {
   connectionString: process.env.DATABASE_URL,
   // Pool configuration
   max: 20,                    // Maximum pool size
-  idleTimeoutMillis: 30000,   // Close idle clients after 30s
+  idleTimeoutMillis: 30010,   // Close idle clients after 30s
   connectionTimeoutMillis: 5000, // Timeout for new connections
 });
 ```

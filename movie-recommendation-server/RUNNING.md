@@ -38,4 +38,4 @@ This parses `data/movies.csv` (~10k movies) and `data/movie_recommendation_users
 npm run dev
 ```
 
-The server starts on `http://localhost:3000`. Check `GET /health` to confirm it's up.
+The server starts on `http://localhost:3001`. Check `GET /health` to confirm it's up.
