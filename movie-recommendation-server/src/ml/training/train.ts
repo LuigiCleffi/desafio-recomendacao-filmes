@@ -98,6 +98,15 @@ async function trainModel() {
   console.log(`Saving model to ${modelDir}...`)
   await saveModel(model, modelDir)
 
+  console.log('Persisting embeddings to database...')
+  const BATCH = 50
+  for (let i = 0; i < movieVectors.length; i += BATCH) {
+    const batch = movieVectors.slice(i, i + BATCH)
+    await Promise.all(batch.map(mv => movieRepo.updateEmbedding(mv.movieId, mv.vector)))
+    process.stdout.write(`\r  Embeddings: ${Math.min(i + BATCH, movieVectors.length)} / ${movieVectors.length}`)
+  }
+  process.stdout.write('\n')
+
   console.log('Training complete!')
 
   // Cleanup

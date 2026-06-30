@@ -178,6 +178,14 @@ export function createRecommendationRoutes(deps: Deps): FastifyPluginAsync {
         send({ type: 'status', message: 'Saving model to disk...' })
         await saveModel(model, modelDir)
 
+        send({ type: 'status', message: 'Persisting embeddings to database...' })
+        const BATCH = 50
+        for (let i = 0; i < movieVectors.length; i += BATCH) {
+          const batch = movieVectors.slice(i, i + BATCH)
+          await Promise.all(batch.map(mv => deps.movieRepository.updateEmbedding(mv.movieId, mv.vector)))
+          send({ type: 'progress', message: `Embeddings: ${Math.min(i + BATCH, movieVectors.length)} / ${movieVectors.length}` })
+        }
+
         send({ type: 'status', message: 'Reloading model into server...' })
         await deps.recommendationModel.load()
 
