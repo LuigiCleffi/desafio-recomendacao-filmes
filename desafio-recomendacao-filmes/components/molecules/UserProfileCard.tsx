@@ -1,17 +1,15 @@
 'use client'
 
-import { User, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 interface UserProfileCardProps {
   birthYear: number
-  isLocal: boolean
   isSelected: boolean
   onSelect: () => void
 }
 
 export function UserProfileCard({
   birthYear,
-  isLocal,
   isSelected,
   onSelect,
 }: UserProfileCardProps) {
@@ -21,22 +19,15 @@ export function UserProfileCard({
     <button
       onClick={onSelect}
       className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between ${
-        isSelected
-          ? 'bg-primary/20 text-primary'
-          : 'hover:bg-accent'
+        isSelected ? 'bg-primary/20 text-primary' : 'hover:bg-accent'
       }`}
     >
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">
-          {isLocal ? '👤' : '🎬'}
-        </span>
+        <span className="text-muted-foreground">🎬</span>
         <div>
           <span className="font-medium">Born {birthYear}</span>
           <span className="text-muted-foreground ml-2">
             (Age {age})
-          </span>
-          <span className="text-xs text-muted-foreground ml-2">
-            {isLocal ? 'Local' : 'MovieLens'}
           </span>
         </div>
       </div>

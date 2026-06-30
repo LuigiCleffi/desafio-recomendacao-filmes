@@ -210,17 +210,6 @@ export function TrainingViewer({ onClose }: TrainingViewerProps) {
               </div>
             </div>
           )}
-
-          {/* Idle instructions */}
-          {phase === 'idle' && epochLogs.length === 0 && (
-            <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 space-y-1">
-              <p className="font-medium mb-1">Prerequisites</p>
-              <p>1. Server running: <code className="text-primary">npm run dev</code></p>
-              <p>2. Data seeded: <code className="text-primary">npm run db:seed</code></p>
-              <p>3. Embeddings generated: <code className="text-primary">npm run ml:embeddings</code></p>
-              <p>4. Click Start Training — epoch metrics will stream here in real time.</p>
-            </div>
-          )}
         </div>
 
         {/* Footer */}

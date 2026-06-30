@@ -10,11 +10,12 @@ interface MovieCarouselProps {
   title: string
   movies: Movie[]
   likedMovieIds?: Set<string>
+  movieRatings?: Map<string, number>
   onLike?: (movieId: string) => void
   badge?: string
 }
 
-export function MovieCarousel({ title, movies, likedMovieIds, onLike, badge }: MovieCarouselProps) {
+export function MovieCarousel({ title, movies, likedMovieIds, movieRatings, onLike, badge }: MovieCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     dragFree: true,
@@ -53,6 +54,7 @@ export function MovieCarousel({ title, movies, likedMovieIds, onLike, badge }: M
                 <MovieCard
                   movie={movie}
                   isLiked={likedMovieIds?.has(movie.id)}
+                  rating={movieRatings?.get(movie.id)}
                   onLike={onLike}
                 />
               </div>

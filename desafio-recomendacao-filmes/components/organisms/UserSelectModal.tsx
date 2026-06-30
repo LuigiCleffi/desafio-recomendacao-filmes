@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
+import { useInView } from 'react-intersection-observer'
 import { useQueryClient } from '@tanstack/react-query'
 import { User as UserIcon, Search, Loader2 } from 'lucide-react'
 import {
@@ -13,11 +14,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { useUsers } from '@/hooks/useUsers'
 import { UserProfileCard } from '@/components/molecules/UserProfileCard'
 import { createUser } from '@/services/users'
-import type { User, UserProfile } from '@/types'
+import type { UserProfile } from '@/types'
 
 interface UserSelectModalProps {
   open: boolean
@@ -33,24 +33,22 @@ export function UserSelectModal({
   currentUser,
 }: UserSelectModalProps) {
   const queryClient = useQueryClient()
-  const { data: serverUsers = [] } = useUsers()
-  const [localUsers, setLocalUsers] = useState<User[]>([])
+  const {
+    data,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useUsers()
+
+  const users = useMemo(
+    () => data?.pages.flatMap((p) => p.data) ?? [],
+    [data],
+  )
+
   const [search, setSearch] = useState('')
   const [newAge, setNewAge] = useState('')
   const [creating, setCreating] = useState(false)
-
-  useEffect(() => {
-    if (!open) return
-
-    const saved = localStorage.getItem('movieLocalUsers')
-    if (saved) {
-      try {
-        setLocalUsers(JSON.parse(saved))
-      } catch {
-        /* empty */
-      }
-    }
-  }, [open])
 
   const handleCreateUser = async () => {
     const age = Number(newAge)
@@ -59,13 +57,9 @@ export function UserSelectModal({
     setCreating(true)
     try {
       const birthYear = new Date().getFullYear() - age
-      // Persist to DB so ratings and recommendations work correctly
       const newUser = await createUser(birthYear)
 
-      const updated = [...localUsers, newUser]
-      setLocalUsers(updated)
-      localStorage.setItem('movieLocalUsers', JSON.stringify(updated))
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['users', 'infinite'] })
 
       onSelectUser({ id: newUser.id, birthYear: newUser.birthYear })
       setNewAge('')
@@ -75,14 +69,31 @@ export function UserSelectModal({
     }
   }
 
-  const allUsers = [...localUsers, ...serverUsers]
   const filtered = search
-    ? allUsers.filter(
+    ? users.filter(
         (u) =>
           String(u.birthYear).includes(search) ||
           u.id.toLowerCase().includes(search.toLowerCase()),
       )
-    : allUsers
+    : users
+
+  const isInitialLoading = isFetching && !isFetchingNextPage && !users.length
+
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null)
+
+  const scrollRef = useCallback((node: HTMLDivElement | null) => {
+    setScrollRoot(node)
+  }, [])
+
+  const { ref: sentinelRef } = useInView({
+    root: scrollRoot,
+    rootMargin: '200px',
+    onChange: (inView) => {
+      if (inView && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage()
+      }
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -127,45 +138,50 @@ export function UserSelectModal({
             </div>
           </div>
 
-          {allUsers.length > 0 && (
-            <>
-              <Separator />
-              <div className="space-y-2">
-                <Label>All Profiles</Label>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by birth year..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8"
+          <div className="space-y-2">
+            <Label>All Profiles</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by birth year..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+            <div ref={scrollRef} className="max-h-60 overflow-y-auto space-y-1">
+              {isInitialLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                filtered.map((u) => (
+                  <UserProfileCard
+                    key={u.id}
+                    birthYear={u.birthYear}
+                    isSelected={currentUser?.id === u.id}
+                    onSelect={() => {
+                      onSelectUser({
+                        id: u.id,
+                        birthYear: u.birthYear,
+                      })
+                      onOpenChange(false)
+                    }}
                   />
+                ))
+              )}
+
+              {isFetchingNextPage && (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
-                <div className="max-h-60 overflow-y-auto space-y-1">
-                  {filtered.map((u) => {
-                    const isServerUser = serverUsers.some(
-                      (su) => su.id === u.id,
-                    )
-                    return (
-                      <UserProfileCard
-                        key={u.id}
-                        birthYear={u.birthYear}
-                        isLocal={!isServerUser}
-                        isSelected={currentUser?.id === u.id}
-                        onSelect={() => {
-                          onSelectUser({
-                            id: u.id,
-                            birthYear: u.birthYear,
-                          })
-                          onOpenChange(false)
-                        }}
-                      />
-                    )
-                  })}
-                </div>
-              </div>
-            </>
-          )}
+              )}
+
+              {hasNextPage && !search && (
+                <div ref={sentinelRef} className="h-4" />
+              )}
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
