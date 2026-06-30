@@ -5,7 +5,7 @@ import { X, Cpu, Play, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useModelStatus } from '@/hooks/useModel'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001').replace(/\/+$/, '')
 const TOTAL_EPOCHS = 100
 
 type TrainingPhase = 'idle' | 'training' | 'done' | 'error'
