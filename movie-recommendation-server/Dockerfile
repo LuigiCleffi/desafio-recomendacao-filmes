@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:22-bookworm AS builder
 
 WORKDIR /app
 
@@ -10,19 +10,17 @@ COPY src ./src
 
 RUN npm run build
 
-FROM node:22-alpine
+FROM node:22-bookworm-slim
 
 WORKDIR /app
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
-
-USER nodejs
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./
 
 EXPOSE 3001
+
+USER node
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
