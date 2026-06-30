@@ -20,18 +20,21 @@ const context = makeMovieContext(movies, ratings, users)
 console.log(`  vector dimensions: ${context.dimensions}`)
 console.log('Generating and persisting embeddings...')
 
+const BATCH_SIZE = 50
 let done = 0
-for (const movie of movies) {
-  const vector = encodeMovie(movie, context);
-  const embedding = vector.arraySync();
-  vector.dispose()
 
-  await movieRepo.updateEmbedding(movie.id, embedding)
+for (let i = 0; i < movies.length; i += BATCH_SIZE) {
+  const batch = movies.slice(i, i + BATCH_SIZE)
 
-  done++
-  if (done % 500 === 0 || done === movies.length) {
-    process.stdout.write(`\r  ${done}/${movies.length}`)
-  }
+  await Promise.all(batch.map(async (movie) => {
+    const vector = encodeMovie(movie, context)
+    const embedding = vector.arraySync()
+    vector.dispose()
+    await movieRepo.updateEmbedding(movie.id, embedding)
+  }))
+
+  done += batch.length
+  process.stdout.write(`\r  ${done}/${movies.length}`)
 }
 
 console.log('\nDone.')
