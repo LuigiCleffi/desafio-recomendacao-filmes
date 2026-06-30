@@ -1,12 +1,12 @@
-import type { Movie } from '../types'
+import type { Movie, PaginatedResponse } from '../types'
 import { api } from './api'
 
-export async function getMovies(): Promise<Movie[]> {
-  const { data } = await api.get<Movie[]>('/movies')
-  return data
-}
-
-export async function getMovieById(id: string): Promise<Movie> {
-  const { data } = await api.get<Movie>(`/movies/${id}`)
+export async function getMoviesByGenre(
+  genre: string,
+  limit = 10,
+): Promise<PaginatedResponse<Movie>> {
+  const { data } = await api.get<PaginatedResponse<Movie>>('/movies', {
+    params: { genre, limit },
+  })
   return data
 }

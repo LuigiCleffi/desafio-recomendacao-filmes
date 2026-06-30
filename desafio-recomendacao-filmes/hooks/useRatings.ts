@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getUserRatings, createRating } from '../services/ratings'
+import { getUserRatings, getAverageRatings, createRating } from '../services/ratings'
 
 export function useUserRatings(userId: string | null) {
   return useQuery({
@@ -7,6 +7,14 @@ export function useUserRatings(userId: string | null) {
     queryFn: () => getUserRatings(userId!),
     enabled: !!userId,
     staleTime: 1000 * 60,
+  })
+}
+
+export function useAverageRatings() {
+  return useQuery({
+    queryKey: ['ratings', 'averages'],
+    queryFn: getAverageRatings,
+    staleTime: 1000 * 60 * 5,
   })
 }
 

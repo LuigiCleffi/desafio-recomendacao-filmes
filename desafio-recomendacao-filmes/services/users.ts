@@ -1,8 +1,10 @@
-import type { User } from '../types'
+import type { User, PaginatedResponse } from '../types'
 import { api } from './api'
 
-export async function getUsers(): Promise<User[]> {
-  const { data } = await api.get<User[]>('/users')
+export async function getUsers(page = 1, limit = 20): Promise<PaginatedResponse<User>> {
+  const { data } = await api.get<PaginatedResponse<User>>('/users', {
+    params: { page, limit },
+  })
   return data
 }
 

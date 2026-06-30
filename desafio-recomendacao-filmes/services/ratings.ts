@@ -8,8 +8,18 @@ export interface Rating {
   createdAt: string
 }
 
+export interface AverageRating {
+  movieId: string
+  averageRating: number
+}
+
 export async function getUserRatings(userId: string): Promise<Rating[]> {
   const { data } = await api.get<Rating[]>(`/users/${userId}/ratings`)
+  return data
+}
+
+export async function getAverageRatings(): Promise<AverageRating[]> {
+  const { data } = await api.get<AverageRating[]>('/ratings/averages')
   return data
 }
 
