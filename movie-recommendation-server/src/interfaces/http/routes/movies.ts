@@ -5,10 +5,12 @@ import type { GetMoviesUseCase } from '../../../application/use-cases/GetMoviesU
 import type { GetMovieByIdUseCase } from '../../../application/use-cases/GetMovieByIdUseCase.js'
 import type { CreateMovieUseCase } from '../../../application/use-cases/CreateMovieUseCase.js'
 import type { GetMovieRecommendationsUseCase } from '../../../application/use-cases/GetMovieRecommendationsUseCase.js'
+import type { MovieRepository } from '../../../domain/repositories/MovieRepository.js'
 import type { Movie } from '../../../domain/entities/Movie.js'
 import { GenreSchema, CreateMovieInputSchema } from '../../../domain/entities/Movie.js'
 
 interface Deps {
+  movieRepository: MovieRepository
   getMovies: GetMoviesUseCase
   getMovieById: GetMovieByIdUseCase
   createMovie: CreateMovieUseCase
@@ -25,6 +27,11 @@ const MovieResponseSchema = z.object({
   updatedAt: z.string(),
 })
 
+const PaginatedMoviesResponseSchema = z.object({
+  data: z.array(MovieResponseSchema),
+  total: z.number(),
+})
+
 const IdParamSchema = z.object({ id: z.string() })
 
 function serialize(movie: Movie) {
@@ -36,15 +43,34 @@ function serialize(movie: Movie) {
   }
 }
 
+const DEFAULT_LIMIT = 10
+const MAX_LIMIT = 50
+
 export function createMovieRoutes(deps: Deps): FastifyPluginAsync {
   return async (fastify) => {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
 
     app.get('/', {
-      schema: { response: { 200: z.array(MovieResponseSchema) } },
-    }, async () => {
-      const result = await deps.getMovies.execute()
-      return result.map(serialize)
+      schema: {
+        querystring: z.object({
+          genre: GenreSchema.optional(),
+          limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
+        }),
+        response: { 200: PaginatedMoviesResponseSchema },
+      },
+    }, async (request) => {
+      const { genre, limit } = request.query
+
+      if (genre) {
+        const [data, total] = await Promise.all([
+          deps.movieRepository.findByGenre(genre, { limit }),
+          deps.movieRepository.countByGenre(genre),
+        ])
+        return { data: data.map(serialize), total }
+      }
+
+      const data = await deps.getMovies.execute()
+      return { data: data.map(serialize), total: data.length }
     })
 
     app.get('/:id', {

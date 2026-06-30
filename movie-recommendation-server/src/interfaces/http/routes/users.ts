@@ -10,6 +10,14 @@ const UserResponseSchema = z.object({
   createdAt: z.string(),
 })
 
+const PaginatedUsersResponseSchema = z.object({
+  data: z.array(UserResponseSchema),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+})
+
 function serialize(user: { id: string; externalId: number; birthYear: number; createdAt: Date }) {
   return {
     ...user,
@@ -17,17 +25,37 @@ function serialize(user: { id: string; externalId: number; birthYear: number; cr
   }
 }
 
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 100
+
 export function createUserRoutes(userRepository: UserRepository): FastifyPluginAsync {
   return async (fastify) => {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
 
     app.get('/', {
       schema: {
-        response: { 200: z.array(UserResponseSchema) },
+        querystring: z.object({
+          page: z.coerce.number().int().min(1).default(1),
+          limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
+        }),
+        response: { 200: PaginatedUsersResponseSchema },
       },
-    }, async () => {
-      const result = await userRepository.findAll()
-      return result.map(serialize)
+    }, async (request) => {
+      const { page, limit } = request.query
+      const offset = (page - 1) * limit
+
+      const [data, total] = await Promise.all([
+        userRepository.findAll({ limit, offset }),
+        userRepository.count(),
+      ])
+
+      return {
+        data: data.map(serialize),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
     })
 
     app.get('/:id', {
@@ -47,8 +75,6 @@ export function createUserRoutes(userRepository: UserRepository): FastifyPluginA
         response: { 201: UserResponseSchema },
       },
     }, async (request, reply) => {
-      // Seeded MovieLens IDs are 1-8000; pick a random int well above that range
-      // but within PostgreSQL integer max (2,147,483,647).
       const externalId = Math.floor(Math.random() * 2_000_000_000) + 100_000
       const user = await userRepository.create({ externalId, birthYear: request.body.birthYear })
       return reply.code(201).send(serialize(user))

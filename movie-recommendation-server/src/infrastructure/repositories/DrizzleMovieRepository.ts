@@ -1,4 +1,4 @@
-import { eq, isNotNull, ne, and, sql } from 'drizzle-orm'
+import { eq, isNotNull, ne, and, count, sql } from 'drizzle-orm'
 import type { Movie, CreateMovieInput, Genre } from '../../domain/entities/Movie.js'
 import { GenreSchema } from '../../domain/entities/Movie.js'
 import type { MovieRepository } from '../../domain/repositories/MovieRepository.js'
@@ -31,12 +31,26 @@ export class DrizzleMovieRepository implements MovieRepository {
     return rows[0] ? toMovie(rows[0]) : null
   }
 
-  async findByGenre(genre: Genre): Promise<Movie[]> {
-    const rows = await this.db
+  async findByGenre(genre: Genre, opts?: { limit?: number; offset?: number }): Promise<Movie[]> {
+    const query = this.db
       .select()
       .from(movies)
       .where(sql`${genre} = ANY(string_to_array(${movies.genre}, '|'))`)
-    return rows.map(toMovie)
+      .$dynamic()
+
+    if (opts?.limit != null) query.limit(opts.limit)
+    if (opts?.offset != null) query.offset(opts.offset)
+
+    return query.then((rows) => rows.map(toMovie))
+  }
+
+  async countByGenre(genre: Genre): Promise<number> {
+    const rows = await this.db
+      .select({ value: count() })
+      .from(movies)
+      .where(sql`${genre} = ANY(string_to_array(${movies.genre}, '|'))`)
+
+    return rows[0]?.value ?? 0
   }
 
   async findSimilar(embedding: number[], limit: number, excludeId?: string): Promise<Movie[]> {

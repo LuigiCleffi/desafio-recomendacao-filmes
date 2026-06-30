@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import type { User, CreateUserInput } from '../../domain/entities/User.js'
 import type { UserRepository } from '../../domain/repositories/UserRepository.js'
 import type { Database } from '../database/drizzle/client.js'
@@ -7,8 +7,26 @@ import { users } from '../database/drizzle/schema.js'
 export class DrizzleUserRepository implements UserRepository {
   constructor(private readonly db: Database) {}
 
-  async findAll(): Promise<User[]> {
-    return this.db.select().from(users)
+  async findAll(opts?: {
+    birthYear?: number
+    limit?: number
+    offset?: number
+  }): Promise<User[]> {
+    const query = this.db.select().from(users).$dynamic()
+
+    if (opts?.limit != null) query.limit(opts.limit)
+    if (opts?.offset != null) query.offset(opts.offset)
+
+    return query
+  }
+
+  async count(opts?: { birthYear?: number }): Promise<number> {
+    const rows = await this.db
+      .select({ value: count() })
+      .from(users)
+
+    const row = rows[0]
+    return row?.value ?? 0
   }
 
   async findById(id: string): Promise<User | null> {
