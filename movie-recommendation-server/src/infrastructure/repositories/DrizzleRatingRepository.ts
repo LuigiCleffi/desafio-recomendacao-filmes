@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import type { Rating, CreateRatingInput } from '../../domain/entities/Recommendation.js'
-import type { RatingRepository } from '../../domain/repositories/RatingRepository.js'
+import type { AverageRating, RatingRepository } from '../../domain/repositories/RatingRepository.js'
 import type { Database } from '../database/drizzle/client.js'
 import { ratings } from '../database/drizzle/schema.js'
 
@@ -17,6 +17,16 @@ export class DrizzleRatingRepository implements RatingRepository {
 
   async findByMovieId(movieId: string): Promise<Rating[]> {
     return this.db.select().from(ratings).where(eq(ratings.movieId, movieId))
+  }
+
+  async findAverageRatings(): Promise<AverageRating[]> {
+    return this.db
+      .select({
+        movieId: ratings.movieId,
+        averageRating: sql<number>`ROUND(AVG(${ratings.rating})::numeric, 1)`,
+      })
+      .from(ratings)
+      .groupBy(ratings.movieId)
   }
 
   async create(input: CreateRatingInput): Promise<Rating> {

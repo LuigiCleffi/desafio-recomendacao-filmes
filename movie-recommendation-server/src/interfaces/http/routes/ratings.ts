@@ -17,9 +17,26 @@ function serialize(r: { id: string; userId: string; movieId: string; rating: num
   return { ...r, createdAt: r.createdAt.toISOString() }
 }
 
+const AverageRatingResponseSchema = z.object({
+  movieId: z.string(),
+  averageRating: z.number(),
+})
+
 export function createRatingRoutes(ratingRepository: RatingRepository): FastifyPluginAsync {
   return async (fastify) => {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
+
+    app.get('/ratings/averages', {
+      schema: {
+        response: { 200: z.array(AverageRatingResponseSchema) },
+      },
+    }, async () => {
+      const averages = await ratingRepository.findAverageRatings()
+      return averages.map(a => ({
+        movieId: a.movieId,
+        averageRating: Number(a.averageRating),
+      }))
+    })
 
     app.get('/users/:id/ratings', {
       schema: {
